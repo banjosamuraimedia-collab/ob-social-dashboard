@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Olivia Blaire — Weekly Content Studio</title>
+<title>Olivia Blaire — Content Studio v3</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root{--ivory:#F7F3EC;--lt:#5B8F9A;--dt:#1B5E6C;--gold:#C9A84C;--blk:#2C2C2C;--wht:#ffffff;--surf:#F0EBE2;--bdr:#DDD5C8;}
@@ -27,8 +26,6 @@
   .tabs{display:flex;border-bottom:2px solid var(--bdr);margin-bottom:2rem;}
   .tab{font-family:'Raleway',sans-serif;font-size:0.8rem;font-weight:500;letter-spacing:0.07em;color:#999;background:none;border:none;padding:0.75rem 1.5rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;}
   .tab.active{color:var(--dt);border-bottom-color:var(--dt);}
-
-  /* TREND SECTION */
   .trend-section{background:var(--dt);border-radius:4px;padding:1.5rem 1.75rem;margin-bottom:2rem;display:none;}
   .trend-section.visible{display:block;}
   .trend-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;}
@@ -44,23 +41,15 @@
   .gen-btn{background:var(--ivory);color:var(--dt);border:none;font-family:'Raleway',sans-serif;font-weight:500;font-size:0.8rem;letter-spacing:0.07em;padding:0.6rem 1.5rem;border-radius:20px;cursor:pointer;transition:all 0.2s;}
   .gen-btn:hover{background:var(--gold);color:var(--blk);}
   .gen-btn:disabled{opacity:0.4;cursor:not-allowed;}
-
-  /* POSTS GRID */
   .posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:2rem;}
-
-  /* POST CARD */
   .post-card{background:var(--wht);border:1px solid var(--bdr);border-radius:6px;overflow:hidden;transition:box-shadow 0.2s;}
   .post-card:hover{box-shadow:0 4px 20px rgba(27,94,108,0.1);}
   .post-card.selected{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,0.25);}
-
-  /* INSTAGRAM PREVIEW */
   .ig-preview{background:#fff;border-bottom:1px solid #efefef;}
   .ig-header{display:flex;align-items:center;gap:0.6rem;padding:0.65rem 0.75rem;}
   .ig-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--dt));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:0.9rem;color:white;font-weight:400;flex-shrink:0;}
   .ig-username{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:0.78rem;font-weight:600;color:#262626;}
   .ig-more{margin-left:auto;color:#aaa;font-size:1rem;cursor:pointer;}
-
-  /* IMAGE AREA */
   .ig-image-wrap{position:relative;background:var(--surf);}
   .ig-image-wrap.square{padding-top:100%;}
   .ig-image-wrap.portrait{padding-top:125%;}
@@ -69,8 +58,6 @@
   .format-toggle{position:absolute;top:0.5rem;right:0.5rem;display:flex;gap:0.25rem;z-index:2;}
   .fmt-btn{background:rgba(0,0,0,0.5);color:white;border:none;font-size:0.65rem;font-weight:600;padding:0.25rem 0.5rem;border-radius:3px;cursor:pointer;letter-spacing:0.04em;}
   .fmt-btn.active{background:rgba(201,168,76,0.9);color:var(--blk);}
-
-  /* IMAGE SWAP BAR */
   .img-swap-bar{background:var(--surf);padding:0.6rem 0.75rem;display:flex;align-items:center;gap:0.5rem;border-bottom:1px solid var(--bdr);flex-wrap:wrap;}
   .img-thumbs{display:flex;gap:0.3rem;}
   .img-thumb{width:40px;height:40px;object-fit:cover;border-radius:3px;cursor:pointer;border:2px solid transparent;transition:border-color 0.2s;flex-shrink:0;}
@@ -82,28 +69,20 @@
   .img-upload-btn{background:none;border:1px solid var(--bdr);color:var(--blk);font-family:'Raleway',sans-serif;font-size:0.7rem;font-weight:500;padding:0.3rem 0.6rem;border-radius:3px;cursor:pointer;white-space:nowrap;}
   .img-upload-btn:hover{border-color:var(--dt);}
   .img-file-input{display:none;}
-
-  /* IG ACTIONS */
   .ig-actions{padding:0.5rem 0.75rem 0.3rem;display:flex;gap:0.9rem;align-items:center;}
   .ig-action-icon{font-size:1.3rem;cursor:pointer;color:#262626;}
   .ig-save-icon{margin-left:auto;font-size:1.2rem;cursor:pointer;color:#262626;}
   .ig-likes{padding:0 0.75rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:0.78rem;font-weight:600;color:#262626;margin-bottom:0.2rem;}
-
-  /* IG CAPTION */
   .ig-caption-area{padding:0.2rem 0.75rem 0.5rem;}
   .ig-caption-text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:0.78rem;color:#262626;line-height:1.5;}
   .ig-caption-text .ig-handle{font-weight:600;}
   .ig-caption-body{white-space:pre-wrap;}
   .ig-hashtags{color:#00376b;font-size:0.75rem;margin-top:0.2rem;line-height:1.5;}
   .ig-timestamp{padding:0 0.75rem 0.6rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:0.65rem;color:#8e8e8e;text-transform:uppercase;letter-spacing:0.04em;}
-
-  /* EDIT AREA */
   .edit-section{padding:0.75rem 1rem;border-top:1px solid var(--bdr);}
   .edit-section.hidden{display:none;}
   .edit-label{font-size:0.65rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--lt);margin-bottom:0.3rem;}
   .edit-textarea{width:100%;font-family:'Raleway',sans-serif;font-size:0.82rem;font-weight:300;line-height:1.65;color:var(--blk);background:var(--ivory);border:1px solid var(--dt);border-radius:3px;padding:0.6rem;resize:vertical;outline:none;min-height:100px;}
-
-  /* CARD ACTIONS */
   .card-actions{display:flex;gap:0.5rem;padding:0.75rem 1rem 1rem;border-top:1px solid var(--bdr);flex-wrap:wrap;}
   .btn-select{flex:1;min-width:100px;background:var(--dt);color:var(--ivory);border:none;font-family:'Raleway',sans-serif;font-size:0.72rem;font-weight:500;letter-spacing:0.07em;padding:0.5rem 0;border-radius:20px;cursor:pointer;transition:all 0.2s;}
   .btn-select:hover{background:var(--lt);}
@@ -111,8 +90,6 @@
   .btn-sm{background:none;border:1px solid var(--bdr);color:var(--blk);font-family:'Raleway',sans-serif;font-size:0.72rem;font-weight:500;letter-spacing:0.06em;padding:0.5rem 0.75rem;border-radius:20px;cursor:pointer;transition:all 0.2s;}
   .btn-sm:hover{border-color:var(--dt);color:var(--dt);}
   .btn-sm.active{background:var(--dt);color:var(--ivory);border-color:var(--dt);}
-
-  /* SCHEDULE */
   .week-schedule{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:2rem;}
   .week-slot{background:var(--wht);border:1px dashed var(--bdr);border-radius:4px;min-height:180px;padding:1.25rem;display:flex;flex-direction:column;}
   .week-slot.filled{border-style:solid;border-color:var(--gold);}
@@ -123,8 +100,6 @@
   .export-bar p{font-size:0.85rem;color:#777;}
   .btn-export{background:var(--dt);color:var(--ivory);border:none;font-family:'Raleway',sans-serif;font-size:0.8rem;font-weight:500;letter-spacing:0.07em;padding:0.65rem 1.75rem;border-radius:20px;cursor:pointer;}
   .btn-export:hover{background:var(--lt);}
-
-  /* LOADING / EMPTY */
   .loading-state{text-align:center;padding:4rem 2rem;display:none;}
   .loading-state.visible{display:block;}
   .loader-ring{width:48px;height:48px;border:3px solid var(--bdr);border-top-color:var(--dt);border-radius:50%;animation:spin 0.9s linear infinite;margin:0 auto 1.25rem;}
@@ -134,8 +109,6 @@
   .empty-state{text-align:center;padding:5rem 2rem;}
   .empty-state h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.8rem;color:var(--dt);margin-bottom:0.75rem;}
   .empty-state p{font-size:0.85rem;color:#aaa;}
-
-  /* MODAL */
   .modal-overlay{position:fixed;inset:0;background:rgba(44,44,44,0.5);z-index:200;display:none;align-items:center;justify-content:center;}
   .modal-overlay.visible{display:flex;}
   .modal{background:var(--wht);border-radius:4px;width:500px;max-width:95vw;padding:2.5rem;}
@@ -147,7 +120,6 @@
   .modal-actions{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:2rem;}
   .btn-cancel{background:none;border:1px solid var(--bdr);color:var(--blk);font-family:'Raleway',sans-serif;font-size:0.8rem;font-weight:500;padding:0.6rem 1.5rem;border-radius:20px;cursor:pointer;}
   .btn-save{background:var(--dt);border:none;color:var(--ivory);font-family:'Raleway',sans-serif;font-size:0.8rem;font-weight:500;padding:0.6rem 1.5rem;border-radius:20px;cursor:pointer;}
-
   .toast{position:fixed;bottom:2rem;right:2rem;background:var(--dt);color:var(--ivory);font-size:0.8rem;padding:0.75rem 1.5rem;border-radius:30px;opacity:0;transform:translateY(8px);transition:all 0.25s;pointer-events:none;z-index:300;}
   .toast.show{opacity:1;transform:translateY(0);}
   @media(max-width:768px){nav{padding:0 1rem;}.container{padding:1rem 1rem 3rem;}.hero-bar{flex-direction:column;align-items:flex-start;gap:1rem;}.posts-grid{grid-template-columns:1fr;}.week-schedule{grid-template-columns:1fr;}}
@@ -173,7 +145,6 @@
     <button class="tab active" onclick="switchTab('posts')">This Week's Posts</button>
     <button class="tab" onclick="switchTab('schedule')">My Schedule (<span id="selectedCount">0</span>)</button>
   </div>
-
   <div class="trend-section" id="trendSection">
     <div class="trend-header">
       <h3>Trending This Week</h3>
@@ -185,13 +156,11 @@
       <button class="gen-btn" id="generatePostsBtn" onclick="generatePosts()" disabled>Generate Posts from Selected Trends</button>
     </div>
   </div>
-
   <div class="loading-state" id="loadingState">
     <div class="loader-ring"></div>
     <div class="loading-step" id="loadingStep">Researching luxury travel trends...</div>
     <p id="loadingSubtext">Scanning travel media and editorial sources</p>
   </div>
-
   <div id="postsTab">
     <div class="empty-state" id="emptyState">
       <h2>Ready when you are.</h2>
@@ -199,7 +168,6 @@
     </div>
     <div class="posts-grid" id="postsGrid"></div>
   </div>
-
   <div id="scheduleTab" style="display:none;">
     <div class="week-schedule">
       <div class="week-slot" id="slot-tue"><div class="slot-day">Tuesday</div><div class="slot-empty">No post selected</div></div>
@@ -212,7 +180,6 @@
     </div>
   </div>
 </div>
-
 <div class="modal-overlay" id="settingsModal">
   <div class="modal">
     <h2>Settings</h2>
@@ -223,7 +190,6 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
-
 <script>
 let state={posts:[],selected:[],trends:[],selectedTrends:[],settings:{claudeKey:'',unsplashKey:'',postsPerWeek:5}};
 
@@ -231,17 +197,15 @@ const VOICE=`You are writing social media posts for Michelle, owner of Olivia Bl
 
 Michelle's voice: warm, knowledgeable, quietly confident. Uses words like: curated, effortless, considered, unhurried, bespoke. Avoids: "amazing", "incredible", excessive exclamation points, salesy language. Tone is like a note from a well-traveled friend who happens to be an expert. Lead-generation intent woven in naturally, never pushy.
 
-CRITICAL FORMAT — every post must have exactly 3 parts separated by blank lines:
+CRITICAL FORMAT — every post must have exactly 3 parts:
 
-PART 1 - HOOK: One single punchy sentence that stops the scroll. Destination or experience focused. Maximum 20 words.
+PART 1 - HOOK: One single punchy sentence that stops the scroll. Maximum 20 words.
 
-PART 2 - BODY: Exactly 2-3 sentences sharing Michelle's insider perspective or expertise. What most travelers miss, what makes this special, a specific detail that elevates the experience.
+PART 2 - BODY: Exactly 2-3 sentences of insider perspective or expertise. What most travelers miss, what makes this special.
 
-PART 3 - CTA: One warm, inviting sentence. Never salesy. Examples: "If this is on your list, I would love to help you plan it right." or "DM me and let's start the conversation." or "This is exactly the kind of trip I love putting together — reach out if you're ready to plan."
+PART 3 - CTA: One warm inviting sentence. Never salesy. Example: "If this is on your list, I would love to help you plan it right."
 
-Then on a new line: 4-5 relevant hashtags.
-
-Total post length: under 150 words. No em dashes used excessively. No generic filler phrases.`;
+Then 4-5 hashtags on a new line. Total post under 150 words.`;
 
 window.addEventListener('load',()=>{loadSettings();setWeekLabel();if(!state.settings.claudeKey)setTimeout(()=>openSettings(),600);});
 
@@ -288,7 +252,7 @@ async function generatePosts(){
   setLoad('Writing posts in Olivia Blaire\'s voice...','Crafting posts from your selected themes');
   try{
     const count=state.settings.postsPerWeek;
-    const raw=await callClaude(`${VOICE}\n\nSelected themes this week: ${state.selectedTrends.join(', ')}\n\nGenerate exactly ${count} posts. Distribute across the themes. Return ONLY valid JSON — array of ${count} objects, no markdown.\n\nEach object: {"theme":"3-5 word label","day":"Tuesday" or "Wednesday" or "Thursday","hook":"the single opening sentence","body":"the 2-3 sentence paragraph","cta":"the closing invitation sentence","hashtags":"#tag1 #tag2 #tag3 #tag4","imageQuery":"5-8 word Unsplash search query for a stunning luxury travel photo"}`);
+    const raw=await callClaude(`${VOICE}\n\nSelected themes: ${state.selectedTrends.join(', ')}\n\nGenerate exactly ${count} posts distributed across themes. Return ONLY valid JSON array of ${count} objects, no markdown.\n\nEach object: {"theme":"3-5 word label","day":"Tuesday" or "Wednesday" or "Thursday","hook":"single opening sentence max 20 words","body":"2-3 sentence insider paragraph","cta":"one warm closing invitation","hashtags":"#tag1 #tag2 #tag3 #tag4","imageQuery":"5-8 word Unsplash search query"}`);
     const posts=JSON.parse(raw.replace(/```json|```/g,'').trim());
     setLoad('Sourcing images...','Finding complimentary-use photography');
     state.posts=await Promise.all(posts.map(async(p,i)=>{
@@ -317,29 +281,21 @@ async function searchImages(postId){
   const input=document.getElementById(`search-input-${postId}`);
   const query=input.value.trim();if(!query)return;
   input.disabled=true;
-  const btn=document.querySelector(`#search-btn-${postId}`);if(btn)btn.disabled=true;
   const images=await fetchImages(query,3);
   const post=state.posts.find(p=>p.id===postId);
   if(post&&images.length){post.images=images;post.selectedImage=0;post.uploadedImg=null;renderPosts();}
   else showToast('No images found — try different keywords');
-  input.disabled=false;if(btn)btn.disabled=false;
+  input.disabled=false;
 }
 
 function handleUpload(postId,file){
   if(!file||!file.type.startsWith('image/'))return;
   const reader=new FileReader();
-  reader.onload=e=>{
-    const post=state.posts.find(p=>p.id===postId);
-    if(post){post.uploadedImg=e.target.result;post.selectedImage=0;renderPosts();}
-  };
+  reader.onload=e=>{const post=state.posts.find(p=>p.id===postId);if(post){post.uploadedImg=e.target.result;renderPosts();}};
   reader.readAsDataURL(file);
 }
 
-function setFormat(postId,fmt){
-  const post=state.posts.find(p=>p.id===postId);
-  if(post){post.format=fmt;renderPosts();}
-}
-
+function setFormat(postId,fmt){const post=state.posts.find(p=>p.id===postId);if(post){post.format=fmt;renderPosts();}}
 function setLoad(s,b){document.getElementById('loadingStep').textContent=s;document.getElementById('loadingSubtext').textContent=b;}
 function showErr(msg){document.getElementById('emptyState').style.display='block';document.getElementById('emptyState').querySelector('h2').textContent='Something went wrong.';document.getElementById('emptyState').querySelector('p').textContent=msg;}
 
@@ -358,15 +314,10 @@ function renderCard(post){
   const isSel=state.selected.includes(post.id);
   const img=getCurrentImg(post);
   const fmt=post.format||'square';
-  const imgHtml=img
-    ?`<img class="ig-image" src="${img.url}" alt="${post.theme}">`
-    :`<div class="ig-image-placeholder">No image loaded</div>`;
-  const thumbs=post.images&&post.images.length>1&&!post.uploadedImg
-    ?post.images.map((im,idx)=>`<img class="img-thumb ${idx===post.selectedImage?'active':''}" src="${im.thumb}" onclick="selectImg(${post.id},${idx})">`).join('')
-    :'';
-  const caption=`${post.hook}\n\n${post.body}\n\n${post.cta}`;
-  const editVal=post.editCaption!==undefined?post.editCaption:caption;
-
+  const imgHtml=img?`<img class="ig-image" src="${img.url}" alt="${post.theme}">`:`<div class="ig-image-placeholder">No image loaded</div>`;
+  const thumbs=post.images&&post.images.length>1&&!post.uploadedImg?post.images.map((im,idx)=>`<img class="img-thumb ${idx===post.selectedImage?'active':''}" src="${im.thumb}" onclick="selectImg(${post.id},${idx})">`).join(''):'';
+  const capHtml=post.editCaption!==undefined?post.editCaption.replace(/\n/g,'<br>'):`${post.hook}<br><br>${post.body}<br><br>${post.cta}`;
+  const capVal=post.editCaption!==undefined?post.editCaption:`${post.hook}\n\n${post.body}\n\n${post.cta}`;
   return `<div class="post-card ${isSel?'selected':''}" id="card-${post.id}">
     <div class="ig-preview">
       <div class="ig-header">
@@ -374,7 +325,7 @@ function renderCard(post){
         <div class="ig-username">oliviablairetravel</div>
         <span class="ig-more">···</span>
       </div>
-      <div class="ig-image-wrap ${fmt}" id="imgwrap-${post.id}">
+      <div class="ig-image-wrap ${fmt}">
         ${imgHtml}
         <div class="format-toggle">
           <button class="fmt-btn ${fmt==='square'?'active':''}" onclick="setFormat(${post.id},'square')">1:1</button>
@@ -385,7 +336,7 @@ function renderCard(post){
         <div class="img-thumbs">${thumbs}</div>
         <div class="img-search-wrap">
           <input class="img-search-input" id="search-input-${post.id}" placeholder="Search new photo..." onkeydown="if(event.key==='Enter')searchImages(${post.id})">
-          <button class="img-search-btn" id="search-btn-${post.id}" onclick="searchImages(${post.id})">Search</button>
+          <button class="img-search-btn" onclick="searchImages(${post.id})">Search</button>
           <button class="img-upload-btn" onclick="document.getElementById('upload-${post.id}').click()">Upload</button>
           <input class="img-file-input" id="upload-${post.id}" type="file" accept="image/*" onchange="handleUpload(${post.id},this.files[0])">
         </div>
@@ -399,7 +350,7 @@ function renderCard(post){
       <div class="ig-caption-area">
         <div class="ig-caption-text">
           <span class="ig-handle">oliviablairetravel</span>
-          <span class="ig-caption-body"> ${post.editCaption!==undefined?post.editCaption.replace(/\n/g,'<br>'):(`${post.hook}<br><br>${post.body}<br><br>${post.cta}`)}</span>
+          <span class="ig-caption-body" id="capbody-${post.id}"> ${capHtml}</span>
         </div>
         <div class="ig-hashtags">${post.hashtags}</div>
       </div>
@@ -407,11 +358,11 @@ function renderCard(post){
     </div>
     <div class="edit-section ${post.editMode?'':'hidden'}" id="edit-${post.id}">
       <div class="edit-label">Edit Caption</div>
-      <textarea class="edit-textarea" id="eta-${post.id}" onchange="liveEdit(${post.id},this.value)">${editVal}</textarea>
+      <textarea class="edit-textarea" id="eta-${post.id}" oninput="liveEdit(${post.id},this.value)">${capVal}</textarea>
     </div>
     <div class="card-actions">
       <button class="btn-select" onclick="toggleSelect(${post.id})">${isSel?'✓ Selected':'Add to Schedule'}</button>
-      <button class="btn-sm ${post.editMode?'active':''}" onclick="toggleEdit(${post.id})">${post.editMode?'Done Editing':'Edit'}</button>
+      <button class="btn-sm ${post.editMode?'active':''}" onclick="toggleEdit(${post.id})">${post.editMode?'Done':'Edit'}</button>
       <button class="btn-sm" onclick="copyPost(${post.id})">Copy</button>
     </div>
   </div>`;
@@ -420,8 +371,8 @@ function renderCard(post){
 function liveEdit(id,val){
   const p=state.posts.find(p=>p.id===id);if(!p)return;
   p.editCaption=val;
-  const area=document.querySelector(`#card-${id} .ig-caption-body`);
-  if(area)area.innerHTML=' '+val.replace(/\n/g,'<br>');
+  const el=document.getElementById(`capbody-${id}`);
+  if(el)el.innerHTML=' '+val.replace(/\n/g,'<br>');
 }
 
 function toggleEdit(id){
@@ -455,15 +406,14 @@ function renderSchedule(){
 function copyPost(id){
   const p=state.posts.find(p=>p.id===id);if(!p)return;
   const img=getCurrentImg(p);
-  const cap=getCaption(p);
-  navigator.clipboard.writeText(`${cap}\n\n${p.hashtags}${img&&img.credit!=='Your photo'?`\n\nPhoto by ${img.credit} on Unsplash`:''}`).then(()=>showToast('Copied to clipboard'));
+  navigator.clipboard.writeText(`${getCaption(p)}\n\n${p.hashtags}${img&&img.credit!=='Your photo'?`\n\nPhoto by ${img.credit} on Unsplash`:''}`).then(()=>showToast('Copied to clipboard'));
 }
 
 function exportAll(){
   const sel=state.selected.map(id=>state.posts.find(p=>p.id===id)).filter(Boolean);
   if(!sel.length){showToast('No posts selected yet');return;}
   const days=['Tuesday','Wednesday','Thursday'];
-  const text=sel.map((p,i)=>{const img=getCurrentImg(p);const cap=getCaption(p);return`── ${days[i]} ─────────────────────\n${cap}\n\n${p.hashtags}${img&&img.credit!=='Your photo'?`\n\nPhoto: ${img.url}\nCredit: ${img.credit} on Unsplash`:''}`;}).join('\n\n');
+  const text=sel.map((p,i)=>{const img=getCurrentImg(p);return`── ${days[i]} ─────────────────────\n${getCaption(p)}\n\n${p.hashtags}${img&&img.credit!=='Your photo'?`\n\nPhoto: ${img.url}\nCredit: ${img.credit} on Unsplash`:''}`}).join('\n\n');
   navigator.clipboard.writeText(text).then(()=>showToast(`${sel.length} posts copied — paste into Buffer`));
 }
 
