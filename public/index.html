@@ -361,22 +361,22 @@ async function callClaude(prompt){
 async function fetchImages(query,count=3,style=''){
   const styledQuery=style?`${query} ${style}`:query;
   const perSource=Math.ceil(count/2);
-  const [unsplashImgs,pexelsImgs]=await Promise.all([
-    fetchUnsplash(styledQuery,perSource),
-    fetchPexels(styledQuery,perSource)
+  const [pexelsImgs,unsplashImgs]=await Promise.all([
+    fetchPexels(styledQuery,perSource),
+    fetchUnsplash(styledQuery,perSource)
   ]);
-  const combined=[...unsplashImgs,...pexelsImgs];
+  const combined=[...pexelsImgs,...unsplashImgs];
   return combined.slice(0,Math.max(count,combined.length));
 }
 
 async function fetchUnsplash(query,count=2){
   if(!state.settings.unsplashKey)return[];
-  try{const res=await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,{headers:{Authorization:`Client-ID ${state.settings.unsplashKey}`}});const data=await res.json();return(data.results||[]).map(p=>({url:p.urls.regular,thumb:p.urls.thumb,credit:p.user.name+' (Unsplash)'}));}catch{return[];}
+  try{const res=await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,{headers:{Authorization:`Client-ID ${state.settings.unsplashKey}`}});const data=await res.json();return(data.results||[]).map(p=>({url:p.urls.regular,thumb:p.urls.thumb,credit:p.user.name}));}catch{return[];}
 }
 
 async function fetchPexels(query,count=2){
   if(!state.settings.pexelsKey)return[];
-  try{const res=await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,{headers:{Authorization:state.settings.pexelsKey}});const data=await res.json();return(data.photos||[]).map(p=>({url:p.src.large,thumb:p.src.small,credit:p.photographer+' (Pexels)'}));}catch{return[];}
+  try{const res=await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,{headers:{Authorization:state.settings.pexelsKey}});const data=await res.json();return(data.photos||[]).map(p=>({url:p.src.large,thumb:p.src.small,credit:p.photographer}));}catch{return[];}
 }
 
 async function searchImages(postId){
@@ -522,14 +522,14 @@ function copyPost(id){
   const p=state.posts.find(p=>p.id===id);if(!p)return;
   const img=getCurrentImg(p);
   const cap=getCaption(p);
-  navigator.clipboard.writeText(`${cap}\n\n${p.hashtags}${img&&img.credit!=='Your photo'?`\n\nPhoto by ${img.credit} on Unsplash`:''}`).then(()=>showToast('Copied to clipboard'));
+  navigator.clipboard.writeText(`${cap}\n\n${p.hashtags}${img&&img.credit!=='Your photo'?``}).then(()=>showToast('Copied to clipboard'));
 }
 
 function exportAll(){
   const sel=state.selected.map(id=>state.posts.find(p=>p.id===id)).filter(Boolean);
   if(!sel.length){showToast('No posts selected yet');return;}
   const days=['Tuesday','Wednesday','Thursday'];
-  const text=sel.map((p,i)=>{const img=getCurrentImg(p);const cap=getCaption(p);return`── ${days[i]} ─────────────────────\n${cap}\n\n${p.hashtags}${img&&img.credit!=='Your photo'?`\n\nPhoto: ${img.url}\nCredit: ${img.credit} on Unsplash`:''}`;}).join('\n\n');
+  const text=sel.map((p,i)=>{const img=getCurrentImg(p);const cap=getCaption(p);return`── ${days[i]} ─────────────────────\n${cap}\n\n${p.hashtags}``}).join('\n\n');
   navigator.clipboard.writeText(text).then(()=>showToast(`${sel.length} posts copied — paste into Buffer`));
 }
 
