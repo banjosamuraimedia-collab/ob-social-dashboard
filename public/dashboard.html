@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olivia Blaire — Weekly Content Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--ivory:#F7F3EC;--lt:#5B8F9A;--dt:#1B5E6C;--gold:#C9A84C;--blk:#2C2C2C;--wht:#ffffff;--surf:#F0EBE2;--bdr:#DDD5C8;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Raleway',sans-serif;font-weight:300;background:var(--ivory);color:var(--blk);min-height:100vh;}
+  nav{background:var(--dt);padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+  .brand{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.3rem;color:var(--ivory);letter-spacing:0.06em;}
+  .brand span{color:var(--gold);}
+  .nav-right{display:flex;align-items:center;gap:1rem;}
+  .week-label{font-size:0.78rem;color:rgba(247,243,236,0.6);letter-spacing:0.05em;}
+  .settings-btn{background:none;border:1px solid rgba(247,243,236,0.3);color:var(--ivory);font-family:'Raleway',sans-serif;font-size:0.78rem;font-weight:500;letter-spacing:0.06em;padding:0.4rem 1rem;border-radius:20px;cursor:pointer;transition:all 0.2s;}
+  .settings-btn:hover{border-color:var(--gold);color:var(--gold);}
+  .container{max-width:1200px;margin:0 auto;padding:2rem 2rem 4rem;}
+  .hero-bar{background:var(--wht);border:1px solid var(--bdr);border-radius:4px;padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;}
+  .hero-bar h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.6rem;color:var(--dt);letter-spacing:0.03em;}
+  .hero-bar p{font-size:0.82rem;color:#888;margin-top:0.2rem;}
+  .research-btn{background:var(--gold);color:var(--blk);border:none;font-family:'Raleway',sans-serif;font-weight:500;font-size:0.85rem;letter-spacing:0.08em;padding:0.75rem 2rem;border-radius:30px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+  .research-btn:hover{background:#b8962e;}
+  .research-btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .tabs{display:flex;border-bottom:2px solid var(--bdr);margin-bottom:2rem;}
+  .tab{font-family:'Raleway',sans-serif;font-size:0.8rem;font-weight:500;letter-spacing:0.07em;color:#999;background:none;border:none;padding:0.75rem 1.5rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s;}
+  .tab.active{color:var(--dt);border-bottom-color:var(--dt);}
+
+  /* TREND SECTION */
+  .trend-section{background:var(--dt);border-radius:4px;padding:1.5rem 1.75rem;margin-bottom:2rem;display:none;}
+  .trend-section.visible{display:block;}
+  .trend-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;}
+  .trend-header h3{font-family:'Cormorant Garamond',serif;font-size:0.9rem;font-weight:400;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;}
+  .trend-instruction{font-size:0.75rem;color:rgba(247,243,236,0.6);}
+  .trend-pills{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.25rem;}
+  .trend-pill{background:rgba(247,243,236,0.12);color:var(--ivory);font-size:0.75rem;padding:0.4rem 0.85rem;border-radius:20px;border:1px solid rgba(247,243,236,0.2);cursor:pointer;transition:all 0.2s;user-select:none;}
+  .trend-pill:hover{background:rgba(247,243,236,0.22);}
+  .trend-pill.selected{background:var(--gold);color:var(--blk);border-color:var(--gold);font-weight:500;}
+  .trend-generate-bar{display:flex;align-items:center;justify-content:space-between;}
+  .trend-count{font-size:0.78rem;color:rgba(247,243,236,0.7);}
+  .trend-count span{color:var(--gold);font-weight:500;}
+  .gen-btn{background:var(--ivory);color:var(--dt);border:none;font-family:'Raleway',sans-serif;font-weight:500;font-size:0.8rem;letter-spacing:0.07em;padding:0.6rem 1.5rem;border-radius:20px;cursor:pointer;transition:all 0.2s;}
+  .gen-btn:hover{background:var(--gold);color:var(--blk);}
+  .gen-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+  /* POSTS GRID */
+  .posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:2rem;}
+
+  /* POST CARD */
+  .post-card{background:var(--wht);border:1px solid var(--bdr);border-radius:6px;overflow:hidden;transition:box-shadow 0.2s;}
+  .post-card:hover{box-shadow:0 4px 20px rgba(27,94,108,0.1);}
+  .post-card.selected{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,0.25);}
+
+  /* INSTAGRAM PREVIEW */
+  .ig-preview{background:#fff;border-bottom:1px solid #efefef;}
+  .ig-header{display:flex;align-items:center;gap:0.6rem;padding:0.65rem 0.75rem;}
+  .ig-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--dt));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:0.9rem;color:white;font-weight:400;flex-shrink:0;}
+  .ig-username{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:0.78rem;font-weight:600;color:#262626;}
+  .ig-more{margin-left:auto;color:#aaa;font-size:1rem;cursor:pointer;}
+
+  /* IMAGE AREA */
+  .ig-image-wrap{position:relative;background:var(--surf);}
+  .ig-image-wrap.square{padding-top:100%;}
+  .ig-image-wrap.portrait{padding-top:125%;}
+  .ig-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .ig-image-placeholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:0.8rem;}
+  .format-toggle{position:absolute;top:0.5rem;right:0.5rem;display:flex;gap:0.25rem;z-index:2;}
+  .fmt-btn{background:rgba(0,0,0,0.5);color:white;border:none;font-size:0.65rem;font-weight:600;padding:0.25rem 0.5rem;border-radius:3px;cursor:pointer;letter-spacing:0.04em;}
+  .fmt-btn.active{background:rgba(201,168,76,0.9);color:var(--blk);}
+
+  /* IMAGE SWAP BAR */
+  .img-swap-bar{background:var(--surf);padding:0.6rem 0.75rem;display:flex;align-items:center;gap:0.5rem;border-bottom:1px solid var(--bdr);flex-wrap:wrap;}
+  .img-thumbs{display:flex;gap:0.3rem;}
+  .img-thumb{width:40px;height:40px;object-fit:cover;border-radius:3px;cursor:pointer;border:2px solid transparent;transition:border-color 0.2s;flex-shrink:0;}
+  .img-thumb.active{border-color:var(--gold);}
+  .img-search-wrap{display:flex;flex:1;min-width:120px;gap:0.3rem;}
+  .img-search-input{flex:1;font-family:'Raleway',sans-serif;font-size:0.72rem;padding:0.3rem 0.6rem;border:1px solid var(--bdr);border-radius:3px;background:var(--wht);outline:none;color:var(--blk);}
+  .img-search-input:focus{border-color:var(--dt);}
+  .img-search-btn{background:var(--dt);color:var(--ivory);border:none;font-family:'Raleway',sans-serif;font-size:0.7rem;font-weight:500;padding:0.3rem 0.6rem;border-radius:3px;cursor:pointer;white-space:nowrap;}
+  .img-upload-btn{background:none;border:1px solid var(--bdr);color:var(--blk);font-family:'Raleway',sans-serif;font-size:0.7rem;font-weight:500;padding:0.3rem 0.6rem;border-radius:3px;cursor:pointer;white-space:nowrap;}
+  .img-upload-btn:hover{border-color:var(--dt);}
+  .img-file-input{display:none;}
+
+  /* IG ACTIONS */
+  .ig-actions{padding:0.5rem 0.75rem 0.3rem;display:flex;gap:0.9rem;align-items:center;}
+  .ig-action-icon{font-size:1.3rem;cursor:pointer;color:#262626;}
+  .ig-save-icon{margin-left:auto;font-size:1.2rem;cursor:pointer;color:#262626;}
+  .ig-likes{padding:0 0.75rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:0.78rem;font-weight:600;color:#262626;margin-bottom:0.2rem;}
+
+  /* IG CAPTION */
+  .ig-caption-area{padding:0.2rem 0.75rem 0.5rem;}
+  .ig-caption-text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:0.78rem;color:#262626;line-height:1.5;}
+  .ig-caption-text .ig-handle{font-weight:600;}
+  .ig-caption-body{white-space:pre-wrap;}
+  .ig-hashtags{color:#00376b;font-size:0.75rem;margin-top:0.2rem;line-height:1.5;}
+  .ig-timestamp{padding:0 0.75rem 0.6rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:0.65rem;color:#8e8e8e;text-transform:uppercase;letter-spacing:0.04em;}
+
+  /* EDIT AREA */
+  .edit-section{padding:0.75rem 1rem;border-top:1px solid var(--bdr);}
+  .edit-section.hidden{display:none;}
+  .edit-label{font-size:0.65rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--lt);margin-bottom:0.3rem;}
+  .edit-textarea{width:100%;font-family:'Raleway',sans-serif;font-size:0.82rem;font-weight:300;line-height:1.65;color:var(--blk);background:var(--ivory);border:1px solid var(--dt);border-radius:3px;padding:0.6rem;resize:vertical;outline:none;min-height:100px;}
+
+  /* CARD ACTIONS */
+  .card-actions{display:flex;gap:0.5rem;padding:0.75rem 1rem 1rem;border-top:1px solid var(--bdr);flex-wrap:wrap;}
+  .btn-select{flex:1;min-width:100px;background:var(--dt);color:var(--ivory);border:none;font-family:'Raleway',sans-serif;font-size:0.72rem;font-weight:500;letter-spacing:0.07em;padding:0.5rem 0;border-radius:20px;cursor:pointer;transition:all 0.2s;}
+  .btn-select:hover{background:var(--lt);}
+  .post-card.selected .btn-select{background:var(--gold);color:var(--blk);}
+  .btn-sm{background:none;border:1px solid var(--bdr);color:var(--blk);font-family:'Raleway',sans-serif;font-size:0.72rem;font-weight:500;letter-spacing:0.06em;padding:0.5rem 0.75rem;border-radius:20px;cursor:pointer;transition:all 0.2s;}
+  .btn-sm:hover{border-color:var(--dt);color:var(--dt);}
+  .btn-sm.active{background:var(--dt);color:var(--ivory);border-color:var(--dt);}
+
+  /* SCHEDULE */
+  .week-schedule{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:2rem;}
+  .week-slot{background:var(--wht);border:1px dashed var(--bdr);border-radius:4px;min-height:180px;padding:1.25rem;display:flex;flex-direction:column;}
+  .week-slot.filled{border-style:solid;border-color:var(--gold);}
+  .slot-day{font-size:0.7rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--dt);margin-bottom:0.75rem;}
+  .slot-preview{font-size:0.8rem;line-height:1.55;color:var(--blk);flex:1;}
+  .slot-empty{font-size:0.8rem;color:#ccc;font-style:italic;flex:1;display:flex;align-items:center;}
+  .export-bar{background:var(--wht);border:1px solid var(--bdr);border-radius:4px;padding:1.25rem 1.75rem;display:flex;align-items:center;justify-content:space-between;}
+  .export-bar p{font-size:0.85rem;color:#777;}
+  .btn-export{background:var(--dt);color:var(--ivory);border:none;font-family:'Raleway',sans-serif;font-size:0.8rem;font-weight:500;letter-spacing:0.07em;padding:0.65rem 1.75rem;border-radius:20px;cursor:pointer;}
+  .btn-export:hover{background:var(--lt);}
+
+  /* LOADING / EMPTY */
+  .loading-state{text-align:center;padding:4rem 2rem;display:none;}
+  .loading-state.visible{display:block;}
+  .loader-ring{width:48px;height:48px;border:3px solid var(--bdr);border-top-color:var(--dt);border-radius:50%;animation:spin 0.9s linear infinite;margin:0 auto 1.25rem;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-state p{font-size:0.85rem;color:#999;}
+  .loading-step{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--dt);margin-bottom:0.4rem;}
+  .empty-state{text-align:center;padding:5rem 2rem;}
+  .empty-state h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.8rem;color:var(--dt);margin-bottom:0.75rem;}
+  .empty-state p{font-size:0.85rem;color:#aaa;}
+
+  /* MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(44,44,44,0.5);z-index:200;display:none;align-items:center;justify-content:center;}
+  .modal-overlay.visible{display:flex;}
+  .modal{background:var(--wht);border-radius:4px;width:500px;max-width:95vw;padding:2.5rem;}
+  .modal h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.5rem;color:var(--dt);margin-bottom:1.75rem;}
+  .form-group{margin-bottom:1.25rem;}
+  .form-group label{display:block;font-size:0.75rem;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--blk);margin-bottom:0.4rem;}
+  .form-group input,.form-group select{width:100%;border:1px solid var(--bdr);background:var(--ivory);font-family:'Raleway',sans-serif;font-size:0.85rem;padding:0.65rem 0.9rem;border-radius:3px;color:var(--blk);outline:none;}
+  .form-group input:focus{border-color:var(--dt);}
+  .modal-actions{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:2rem;}
+  .btn-cancel{background:none;border:1px solid var(--bdr);color:var(--blk);font-family:'Raleway',sans-serif;font-size:0.8rem;font-weight:500;padding:0.6rem 1.5rem;border-radius:20px;cursor:pointer;}
+  .btn-save{background:var(--dt);border:none;color:var(--ivory);font-family:'Raleway',sans-serif;font-size:0.8rem;font-weight:500;padding:0.6rem 1.5rem;border-radius:20px;cursor:pointer;}
+
+  .custom-theme-row{display:flex;gap:0.5rem;margin-bottom:1rem;}
+  .custom-theme-input{flex:1;font-family:'Raleway',sans-serif;font-size:0.78rem;padding:0.4rem 0.85rem;border-radius:20px;border:1px solid rgba(247,243,236,0.3);background:rgba(247,243,236,0.1);color:var(--ivory);outline:none;}
+  .custom-theme-input::placeholder{color:rgba(247,243,236,0.4);}
+  .custom-theme-input:focus{border-color:var(--gold);}
+  .custom-theme-add{background:var(--gold);color:var(--blk);border:none;font-family:'Raleway',sans-serif;font-size:0.75rem;font-weight:500;padding:0.4rem 1rem;border-radius:20px;cursor:pointer;white-space:nowrap;}
+  .trend-pill.custom{background:rgba(201,168,76,0.2);border-color:rgba(201,168,76,0.5);color:var(--gold);}
+  .trend-pill.custom.selected{background:var(--gold);color:var(--blk);}
+  .photo-style-row{display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;}
+  .photo-style-label{font-size:0.72rem;color:rgba(247,243,236,0.6);letter-spacing:0.05em;white-space:nowrap;}
+  .photo-style-btn{background:rgba(247,243,236,0.1);color:var(--ivory);border:1px solid rgba(247,243,236,0.2);font-family:'Raleway',sans-serif;font-size:0.72rem;padding:0.3rem 0.85rem;border-radius:20px;cursor:pointer;transition:all 0.2s;}
+  .photo-style-btn:hover{background:rgba(247,243,236,0.2);}
+  .photo-style-btn.active{background:var(--gold);color:var(--blk);border-color:var(--gold);font-weight:500;}
+  .toast{position:fixed;bottom:2rem;right:2rem;background:var(--dt);color:var(--ivory);font-size:0.8rem;padding:0.75rem 1.5rem;border-radius:30px;opacity:0;transform:translateY(8px);transition:all 0.25s;pointer-events:none;z-index:300;}
+  .toast.show{opacity:1;transform:translateY(0);}
+  @media(max-width:768px){nav{padding:0 1rem;}.container{padding:1rem 1rem 3rem;}.hero-bar{flex-direction:column;align-items:flex-start;gap:1rem;}.posts-grid{grid-template-columns:1fr;}.week-schedule{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="brand">Olivia Blaire <span>/ Content Studio</span></div>
+  <div class="nav-right">
+    <span class="week-label" id="weekLabel"></span>
+    <button class="settings-btn" onclick="openSettings()">⚙ Settings</button>
+  </div>
+</nav>
+<div class="container">
+  <div class="hero-bar">
+    <div>
+      <h1>Your weekly content, curated.</h1>
+      <p>Research trends → pick 3 → generate posts → schedule</p>
+    </div>
+    <button class="research-btn" id="researchBtn" onclick="researchTrends()">Research This Week's Trends</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('posts')">This Week's Posts</button>
+    <button class="tab" onclick="switchTab('schedule')">My Schedule (<span id="selectedCount">0</span>)</button>
+  </div>
+
+  <div class="trend-section" id="trendSection">
+    <div class="trend-header">
+      <h3>Trending This Week</h3>
+      <span class="trend-instruction">Select up to 3 themes, then generate your posts</span>
+    </div>
+    <div class="custom-theme-row">
+      <input class="custom-theme-input" id="customThemeInput" placeholder="Add your own theme, e.g. Christmas in Venice..." onkeydown="if(event.key==='Enter')addCustomTheme()">
+      <button class="custom-theme-add" onclick="addCustomTheme()">+ Add Theme</button>
+    </div>
+    <div class="trend-pills" id="trendPills"></div>
+    <div class="photo-style-row">
+      <span class="photo-style-label">Photo style:</span>
+      <button class="photo-style-btn active" onclick="setPhotoStyle('bright vibrant',this)">Bright & Vibrant</button>
+      <button class="photo-style-btn" onclick="setPhotoStyle('moody dramatic',this)">Moody & Editorial</button>
+      <button class="photo-style-btn" onclick="setPhotoStyle('light airy soft',this)">Light & Airy</button>
+      <button class="photo-style-btn" onclick="setPhotoStyle('golden hour warm',this)">Golden Hour</button>
+    </div>
+    <div class="trend-generate-bar">
+      <span class="trend-count">Selected: <span id="trendCount">0</span> / 3</span>
+      <button class="gen-btn" id="generatePostsBtn" onclick="generatePosts()" disabled>Generate Posts from Selected Trends</button>
+    </div>
+  </div>
+
+  <div class="loading-state" id="loadingState">
+    <div class="loader-ring"></div>
+    <div class="loading-step" id="loadingStep">Researching luxury travel trends...</div>
+    <p id="loadingSubtext">Scanning travel media and editorial sources</p>
+  </div>
+
+  <div id="postsTab">
+    <div class="empty-state" id="emptyState">
+      <h2>Ready when you are.</h2>
+      <p>Click "Research This Week's Trends" to get started.</p>
+    </div>
+    <div class="posts-grid" id="postsGrid"></div>
+  </div>
+
+  <div id="scheduleTab" style="display:none;">
+    <div class="week-schedule">
+      <div class="week-slot" id="slot-tue"><div class="slot-day">Tuesday</div><div class="slot-empty">No post selected</div></div>
+      <div class="week-slot" id="slot-wed"><div class="slot-day">Wednesday</div><div class="slot-empty">No post selected</div></div>
+      <div class="week-slot" id="slot-thu"><div class="slot-day">Thursday</div><div class="slot-empty">No post selected</div></div>
+    </div>
+    <div class="export-bar">
+      <p><strong id="exportCount">0</strong> posts selected — copy all to clipboard for Buffer</p>
+      <button class="btn-export" onclick="exportAll()">Copy All to Clipboard</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <h2>Settings</h2>
+    <div class="form-group"><label>Claude API Key</label><input type="password" id="claudeKey" placeholder="sk-ant-..."/></div>
+    <div class="form-group"><label>Unsplash Access Key</label><input type="password" id="unsplashKey" placeholder="Your Unsplash access key"/></div>
+    <div class="form-group"><label>Pexels API Key</label><input type="password" id="pexelsKey" placeholder="Your Pexels API key"/></div>
+    <div class="form-group"><label>Posts to generate</label><select id="postsPerWeek"><option value="3">3 posts</option><option value="4">4 posts</option><option value="5" selected>5 posts</option></select></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeSettings()">Cancel</button><button class="btn-save" onclick="saveSettings()">Save</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let state={posts:[],selected:[],trends:[],selectedTrends:[],settings:{claudeKey:'',unsplashKey:'',pexelsKey:'',postsPerWeek:5}};
+
+const VOICE=`You are writing social media posts for Michelle, owner of Olivia Blaire Travel — a luxury travel advisory in Central Wisconsin, affiliated with Virtuoso and Departure Lounge.
+
+Michelle's voice: warm, knowledgeable, quietly confident. Uses words like: curated, effortless, considered, unhurried, bespoke. Avoids: "amazing", "incredible", excessive exclamation points, salesy language. Tone is like a note from a well-traveled friend who happens to be an expert. Lead-generation intent woven in naturally, never pushy.
+
+CRITICAL FORMAT — every post must have exactly 3 parts separated by blank lines:
+
+PART 1 - HOOK: One single punchy sentence that stops the scroll. Destination or experience focused. Maximum 20 words.
+
+PART 2 - BODY: Exactly 2-3 sentences sharing Michelle's insider perspective or expertise. What most travelers miss, what makes this special, a specific detail that elevates the experience.
+
+PART 3 - CTA: One warm, inviting sentence. Never salesy. Examples: "If this is on your list, I would love to help you plan it right." or "DM me and let's start the conversation." or "This is exactly the kind of trip I love putting together — reach out if you're ready to plan."
+
+Then on a new line: 4-5 relevant hashtags.
+
+Total post length: under 150 words. No em dashes used excessively. No generic filler phrases.`;
+
+window.addEventListener('load',()=>{loadSettings();setWeekLabel();if(!state.settings.claudeKey)setTimeout(()=>openSettings(),600);});
+
+function setWeekLabel(){const n=new Date(),m=new Date(n);m.setDate(n.getDate()-n.getDay()+1);const s=new Date(m);s.setDate(m.getDate()+6);const f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});document.getElementById('weekLabel').textContent=`Week of ${f(m)} – ${f(s)}`;}
+function openSettings(){document.getElementById('claudeKey').value=state.settings.claudeKey;document.getElementById('unsplashKey').value=state.settings.unsplashKey;document.getElementById('pexelsKey').value=state.settings.pexelsKey||'';document.getElementById('postsPerWeek').value=state.settings.postsPerWeek;document.getElementById('settingsModal').classList.add('visible');}
+function closeSettings(){document.getElementById('settingsModal').classList.remove('visible');}
+function saveSettings(){state.settings.claudeKey=document.getElementById('claudeKey').value.trim();state.settings.unsplashKey=document.getElementById('unsplashKey').value.trim();state.settings.pexelsKey=document.getElementById('pexelsKey').value.trim();state.settings.postsPerWeek=parseInt(document.getElementById('postsPerWeek').value);localStorage.setItem('ob_settings',JSON.stringify(state.settings));closeSettings();showToast('Settings saved');}
+function loadSettings(){const s=localStorage.getItem('ob_settings');if(s)state.settings={...state.settings,...JSON.parse(s)};}
+function switchTab(tab){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='posts')||(i===1&&tab==='schedule')));document.getElementById('postsTab').style.display=tab==='posts'?'block':'none';document.getElementById('scheduleTab').style.display=tab==='schedule'?'block':'none';if(tab==='schedule')renderSchedule();}
+
+
+let photoStyle='bright vibrant';
+
+function setPhotoStyle(style,btn){
+  photoStyle=style;
+  document.querySelectorAll('.photo-style-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function addCustomTheme(){
+  const input=document.getElementById('customThemeInput');
+  const val=input.value.trim();
+  if(!val)return;
+  if(state.trends.includes(val)){showToast('Theme already in list');return;}
+  state.trends.push(val);
+  const idx=state.trends.length-1;
+  const pill=document.createElement('span');
+  pill.className='trend-pill custom';
+  pill.setAttribute('data-idx',idx);
+  pill.textContent=val;
+  pill.onclick=()=>toggleTrend(idx);
+  document.getElementById('trendPills').appendChild(pill);
+  input.value='';
+  showToast('Theme added');
+}
+
+async function researchTrends(){
+  if(!state.settings.claudeKey){openSettings();return;}
+  const btn=document.getElementById('researchBtn');btn.disabled=true;
+  document.getElementById('loadingState').classList.add('visible');
+  document.getElementById('trendSection').classList.remove('visible');
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('postsGrid').innerHTML='';
+  state.selectedTrends=[];
+  setLoad('Researching luxury travel trends...','Scanning travel media and editorial sources');
+  try{
+    const raw=await callClaude(`You are a luxury travel trend analyst. Today is ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}.\n\nIdentify exactly 10 current trending topics in luxury travel for social media this week. Prioritize Italy, Spain, UK, Europe, then other high-volume luxury destinations.\n\nReturn ONLY a JSON array of exactly 10 strings, no markdown. Keep each 4-7 words. Example: ["Amalfi Coast peak summer","Madrid luxury boutique hotels"]`);
+    state.trends=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    document.getElementById('loadingState').classList.remove('visible');
+    document.getElementById('trendPills').innerHTML=state.trends.map((t,i)=>`<span class="trend-pill" onclick="toggleTrend(${i})" data-idx="${i}">${t}</span>`).join('');
+    document.getElementById('trendSection').classList.add('visible');
+  }catch(err){document.getElementById('loadingState').classList.remove('visible');showErr(err.message);}
+  btn.disabled=false;
+}
+
+function toggleTrend(idx){
+  const pill=document.querySelector(`.trend-pill[data-idx="${idx}"]`);
+  const trend=state.trends[idx];const pos=state.selectedTrends.indexOf(trend);
+  if(pos>-1){state.selectedTrends.splice(pos,1);pill.classList.remove('selected');}
+  else{if(state.selectedTrends.length>=3){showToast('Max 3 themes — deselect one first');return;}state.selectedTrends.push(trend);pill.classList.add('selected');}
+  document.getElementById('trendCount').textContent=state.selectedTrends.length;
+  document.getElementById('generatePostsBtn').disabled=state.selectedTrends.length===0;
+}
+
+async function generatePosts(){
+  if(!state.selectedTrends.length)return;
+  const btn=document.getElementById('generatePostsBtn');btn.disabled=true;
+  document.getElementById('loadingState').classList.add('visible');
+  document.getElementById('postsGrid').innerHTML='';
+  setLoad('Writing posts in Olivia Blaire\'s voice...','Crafting posts from your selected themes');
+  try{
+    const count=state.settings.postsPerWeek;
+    const raw=await callClaude(`${VOICE}\n\nSelected themes this week: ${state.selectedTrends.join(', ')}\n\nGenerate exactly ${count} posts. Distribute across the themes. Return ONLY valid JSON — array of ${count} objects, no markdown.\n\nEach object: {"theme":"3-5 word label","day":"Tuesday" or "Wednesday" or "Thursday","hook":"the single opening sentence","body":"the 2-3 sentence paragraph","cta":"the closing invitation sentence","hashtags":"#tag1 #tag2 #tag3 #tag4","imageQuery":"5-8 word Unsplash search query for a stunning luxury travel photo"}`);
+    const posts=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    setLoad('Sourcing images...','Finding complimentary-use photography');
+    state.posts=await Promise.all(posts.map(async(p,i)=>{
+      const images=await fetchImages(p.imageQuery,3,photoStyle);
+      return{...p,images,selectedImage:0,id:i,editMode:false,format:'square',uploadedImg:null};
+    }));
+    localStorage.setItem('ob_posts',JSON.stringify({posts:state.posts,timestamp:Date.now()}));
+    document.getElementById('loadingState').classList.remove('visible');
+    renderPosts();
+  }catch(err){document.getElementById('loadingState').classList.remove('visible');showToast('Error: '+err.message);}
+  btn.disabled=false;
+}
+
+async function callClaude(prompt){
+  const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':state.settings.claudeKey},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
+  if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'API error');}
+  const data=await res.json();return data.content[0].text;
+}
+
+async function fetchImages(query,count=3,style=''){
+  const styledQuery=style?`${query} ${style}`:query;
+  const perSource=Math.ceil(count/2);
+  const [pexelsImgs,unsplashImgs]=await Promise.all([
+    fetchPexels(styledQuery,perSource),
+    fetchUnsplash(styledQuery,perSource)
+  ]);
+  const combined=[...pexelsImgs,...unsplashImgs];
+  return combined.slice(0,Math.max(count,combined.length));
+}
+
+async function fetchUnsplash(query,count=2){
+  if(!state.settings.unsplashKey)return[];
+  try{const res=await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,{headers:{Authorization:`Client-ID ${state.settings.unsplashKey}`}});const data=await res.json();return(data.results||[]).map(p=>({url:p.urls.regular,thumb:p.urls.thumb,credit:p.user.name}));}catch{return[];}
+}
+
+async function fetchPexels(query,count=2){
+  if(!state.settings.pexelsKey)return[];
+  try{const res=await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,{headers:{Authorization:state.settings.pexelsKey}});const data=await res.json();return(data.photos||[]).map(p=>({url:p.src.large,thumb:p.src.small,credit:p.photographer}));}catch{return[];}
+}
+
+async function searchImages(postId){
+  const input=document.getElementById(`search-input-${postId}`);
+  const query=input.value.trim();if(!query)return;
+  input.disabled=true;
+  const btn=document.querySelector(`#search-btn-${postId}`);if(btn)btn.disabled=true;
+  const images=await fetchImages(query,3,photoStyle);
+  const post=state.posts.find(p=>p.id===postId);
+  if(post&&images.length){post.images=images;post.selectedImage=0;post.uploadedImg=null;renderPosts();}
+  else showToast('No images found — try different keywords');
+  input.disabled=false;if(btn)btn.disabled=false;
+}
+
+function handleUpload(postId,file){
+  if(!file||!file.type.startsWith('image/'))return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const post=state.posts.find(p=>p.id===postId);
+    if(post){post.uploadedImg=e.target.result;post.selectedImage=0;renderPosts();}
+  };
+  reader.readAsDataURL(file);
+}
+
+function setFormat(postId,fmt){
+  const post=state.posts.find(p=>p.id===postId);
+  if(post){post.format=fmt;renderPosts();}
+}
+
+function setLoad(s,b){document.getElementById('loadingStep').textContent=s;document.getElementById('loadingSubtext').textContent=b;}
+function showErr(msg){document.getElementById('emptyState').style.display='block';document.getElementById('emptyState').querySelector('h2').textContent='Something went wrong.';document.getElementById('emptyState').querySelector('p').textContent=msg;}
+
+function renderPosts(){
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('postsGrid').innerHTML=state.posts.map(p=>renderCard(p)).join('');
+}
+
+function getCurrentImg(post){
+  if(post.uploadedImg)return{url:post.uploadedImg,credit:'Your photo'};
+  if(post.images&&post.images[post.selectedImage])return post.images[post.selectedImage];
+  return null;
+}
+
+function renderCard(post){
+  const isSel=state.selected.includes(post.id);
+  const img=getCurrentImg(post);
+  const fmt=post.format||'square';
+  const imgHtml=img
+    ?`<img class="ig-image" src="${img.url}" alt="${post.theme}">`
+    :`<div class="ig-image-placeholder">No image loaded</div>`;
+  const thumbs=post.images&&post.images.length>1&&!post.uploadedImg
+    ?post.images.map((im,idx)=>`<img class="img-thumb ${idx===post.selectedImage?'active':''}" src="${im.thumb}" onclick="selectImg(${post.id},${idx})">`).join('')
+    :'';
+  const caption=`${post.hook}\n\n${post.body}\n\n${post.cta}`;
+  const editVal=post.editCaption!==undefined?post.editCaption:caption;
+
+  return `<div class="post-card ${isSel?'selected':''}" id="card-${post.id}">
+    <div class="ig-preview">
+      <div class="ig-header">
+        <div class="ig-avatar">OB</div>
+        <div class="ig-username">oliviablairetravel</div>
+        <span class="ig-more">···</span>
+      </div>
+      <div class="ig-image-wrap ${fmt}" id="imgwrap-${post.id}">
+        ${imgHtml}
+        <div class="format-toggle">
+          <button class="fmt-btn ${fmt==='square'?'active':''}" onclick="setFormat(${post.id},'square')">1:1</button>
+          <button class="fmt-btn ${fmt==='portrait'?'active':''}" onclick="setFormat(${post.id},'portrait')">4:5</button>
+        </div>
+      </div>
+      <div class="img-swap-bar">
+        <div class="img-thumbs">${thumbs}</div>
+        <div class="img-search-wrap">
+          <input class="img-search-input" id="search-input-${post.id}" placeholder="Search new photo..." onkeydown="if(event.key==='Enter')searchImages(${post.id})">
+          <button class="img-search-btn" id="search-btn-${post.id}" onclick="searchImages(${post.id})">Search</button>
+          <button class="img-upload-btn" onclick="document.getElementById('upload-${post.id}').click()">Upload</button>
+          <input class="img-file-input" id="upload-${post.id}" type="file" accept="image/*" onchange="handleUpload(${post.id},this.files[0])">
+        </div>
+      </div>
+      <div class="ig-actions">
+        <span class="ig-action-icon">🤍</span>
+        <span class="ig-action-icon">💬</span>
+        <span class="ig-action-icon">↗️</span>
+        <span class="ig-save-icon">🔖</span>
+      </div>
+      <div class="ig-caption-area">
+        <div class="ig-caption-text">
+          <span class="ig-handle">oliviablairetravel</span>
+          <span class="ig-caption-body"> ${post.editCaption!==undefined?post.editCaption.replace(/\n/g,'<br>'):(`${post.hook}<br><br>${post.body}<br><br>${post.cta}`)}</span>
+        </div>
+        <div class="ig-hashtags">${post.hashtags}</div>
+      </div>
+      <div class="ig-timestamp">June 2026 · oliviablairetravel.com</div>
+    </div>
+    <div class="edit-section ${post.editMode?'':'hidden'}" id="edit-${post.id}">
+      <div class="edit-label">Edit Caption</div>
+      <textarea class="edit-textarea" id="eta-${post.id}" onchange="liveEdit(${post.id},this.value)">${editVal}</textarea>
+    </div>
+    <div class="card-actions">
+      <button class="btn-select" onclick="toggleSelect(${post.id})">${isSel?'✓ Selected':'Add to Schedule'}</button>
+      <button class="btn-sm ${post.editMode?'active':''}" onclick="toggleEdit(${post.id})">${post.editMode?'Done Editing':'Edit'}</button>
+      <button class="btn-sm" onclick="copyPost(${post.id})">Copy</button>
+    </div>
+  </div>`;
+}
+
+function liveEdit(id,val){
+  const p=state.posts.find(p=>p.id===id);if(!p)return;
+  p.editCaption=val;
+  const area=document.querySelector(`#card-${id} .ig-caption-body`);
+  if(area)area.innerHTML=' '+val.replace(/\n/g,'<br>');
+}
+
+function toggleEdit(id){
+  const p=state.posts.find(p=>p.id===id);if(!p)return;
+  p.editMode=!p.editMode;
+  if(p.editMode&&p.editCaption===undefined)p.editCaption=`${p.hook}\n\n${p.body}\n\n${p.cta}`;
+  renderPosts();
+}
+
+function selectImg(id,idx){const p=state.posts.find(p=>p.id===id);if(p){p.selectedImage=idx;p.uploadedImg=null;renderPosts();}}
+
+function toggleSelect(id){
+  const idx=state.selected.indexOf(id);
+  if(idx>-1)state.selected.splice(idx,1);
+  else{if(state.selected.length>=3){showToast('Max 3 posts — deselect one first');return;}state.selected.push(id);}
+  document.getElementById('selectedCount').textContent=state.selected.length;
+  document.getElementById('exportCount').textContent=state.selected.length;
+  const card=document.getElementById(`card-${id}`);
+  if(card){card.classList.toggle('selected',state.selected.includes(id));card.querySelector('.btn-select').textContent=state.selected.includes(id)?'✓ Selected':'Add to Schedule';}
+}
+
+function getCaption(post){return post.editCaption!==undefined?post.editCaption:`${post.hook}\n\n${post.body}\n\n${post.cta}`;}
+
+function renderSchedule(){
+  const days=['tue','wed','thu'],names=['Tuesday','Wednesday','Thursday'];
+  const sel=state.selected.map(id=>state.posts.find(p=>p.id===id)).filter(Boolean);
+  days.forEach((d,i)=>{const slot=document.getElementById(`slot-${d}`),post=sel[i];if(post){slot.classList.add('filled');slot.innerHTML=`<div class="slot-day">${names[i]}</div><div class="slot-preview">${getCaption(post).substring(0,120)}...</div>`;}else{slot.classList.remove('filled');slot.innerHTML=`<div class="slot-day">${names[i]}</div><div class="slot-empty">No post selected</div>`;}});
+  document.getElementById('exportCount').textContent=state.selected.length;
+}
+
+function copyPost(id){
+  const p=state.posts.find(p=>p.id===id);if(!p)return;
+  const img=getCurrentImg(p);
+  const cap=getCaption(p);
+  navigator.clipboard.writeText(`${cap}\n\n${p.hashtags}${img&&img.credit!=='Your photo'?``}).then(()=>showToast('Copied to clipboard'));
+}
+
+function exportAll(){
+  const sel=state.selected.map(id=>state.posts.find(p=>p.id===id)).filter(Boolean);
+  if(!sel.length){showToast('No posts selected yet');return;}
+  const days=['Tuesday','Wednesday','Thursday'];
+  const text=sel.map((p,i)=>{const img=getCurrentImg(p);const cap=getCaption(p);return`── ${days[i]} ─────────────────────\n${cap}\n\n${p.hashtags}``}).join('\n\n');
+  navigator.clipboard.writeText(text).then(()=>showToast(`${sel.length} posts copied — paste into Buffer`));
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+</script>
+</body>
+</html>
