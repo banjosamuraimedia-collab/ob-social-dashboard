@@ -147,6 +147,18 @@
   .btn-cancel{background:none;border:1px solid var(--bdr);color:var(--blk);font-family:'Raleway',sans-serif;font-size:0.8rem;font-weight:500;padding:0.6rem 1.5rem;border-radius:20px;cursor:pointer;}
   .btn-save{background:var(--dt);border:none;color:var(--ivory);font-family:'Raleway',sans-serif;font-size:0.8rem;font-weight:500;padding:0.6rem 1.5rem;border-radius:20px;cursor:pointer;}
 
+  .custom-theme-row{display:flex;gap:0.5rem;margin-bottom:1rem;}
+  .custom-theme-input{flex:1;font-family:'Raleway',sans-serif;font-size:0.78rem;padding:0.4rem 0.85rem;border-radius:20px;border:1px solid rgba(247,243,236,0.3);background:rgba(247,243,236,0.1);color:var(--ivory);outline:none;}
+  .custom-theme-input::placeholder{color:rgba(247,243,236,0.4);}
+  .custom-theme-input:focus{border-color:var(--gold);}
+  .custom-theme-add{background:var(--gold);color:var(--blk);border:none;font-family:'Raleway',sans-serif;font-size:0.75rem;font-weight:500;padding:0.4rem 1rem;border-radius:20px;cursor:pointer;white-space:nowrap;}
+  .trend-pill.custom{background:rgba(201,168,76,0.15);border-color:rgba(201,168,76,0.4);color:var(--gold);}
+  .trend-pill.custom.selected{background:var(--gold);color:var(--blk);}
+  .photo-style-row{display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;flex-wrap:wrap;}
+  .photo-style-label{font-size:0.72rem;color:rgba(247,243,236,0.6);letter-spacing:0.05em;white-space:nowrap;}
+  .photo-style-btn{background:rgba(247,243,236,0.1);color:var(--ivory);border:1px solid rgba(247,243,236,0.2);font-family:'Raleway',sans-serif;font-size:0.72rem;padding:0.3rem 0.85rem;border-radius:20px;cursor:pointer;transition:all 0.2s;}
+  .photo-style-btn:hover{background:rgba(247,243,236,0.2);}
+  .photo-style-btn.active{background:var(--gold);color:var(--blk);border-color:var(--gold);font-weight:500;}
   .toast{position:fixed;bottom:2rem;right:2rem;background:var(--dt);color:var(--ivory);font-size:0.8rem;padding:0.75rem 1.5rem;border-radius:30px;opacity:0;transform:translateY(8px);transition:all 0.25s;pointer-events:none;z-index:300;}
   .toast.show{opacity:1;transform:translateY(0);}
   @media(max-width:768px){nav{padding:0 1rem;}.container{padding:1rem 1rem 3rem;}.hero-bar{flex-direction:column;align-items:flex-start;gap:1rem;}.posts-grid{grid-template-columns:1fr;}.week-schedule{grid-template-columns:1fr;}}
@@ -178,7 +190,18 @@
       <h3>Trending This Week</h3>
       <span class="trend-instruction">Select up to 3 themes, then generate your posts</span>
     </div>
+    <div class="custom-theme-row">
+      <input class="custom-theme-input" id="customThemeInput" placeholder="Add your own theme, e.g. Christmas in Venice..." onkeydown="if(event.key==='Enter')addCustomTheme()">
+      <button class="custom-theme-add" onclick="addCustomTheme()">+ Add Theme</button>
+    </div>
     <div class="trend-pills" id="trendPills"></div>
+    <div class="photo-style-row">
+      <span class="photo-style-label">Photo style:</span>
+      <button class="photo-style-btn active" onclick="setPhotoStyle('bright vibrant',this)">Bright &amp; Vibrant</button>
+      <button class="photo-style-btn" onclick="setPhotoStyle('moody dramatic',this)">Moody &amp; Editorial</button>
+      <button class="photo-style-btn" onclick="setPhotoStyle('light airy soft',this)">Light &amp; Airy</button>
+      <button class="photo-style-btn" onclick="setPhotoStyle('golden hour warm',this)">Golden Hour</button>
+    </div>
     <div class="trend-generate-bar">
       <span class="trend-count">Selected: <span id="trendCount">0</span> / 3</span>
       <button class="gen-btn" id="generatePostsBtn" onclick="generatePosts()" disabled>Generate Posts from Selected Trends</button>
@@ -217,6 +240,7 @@
     <h2>Settings</h2>
     <div class="form-group"><label>Claude API Key</label><input type="password" id="claudeKey" placeholder="sk-ant-..."/></div>
     <div class="form-group"><label>Unsplash Access Key</label><input type="password" id="unsplashKey" placeholder="Your Unsplash access key"/></div>
+    <div class="form-group"><label>Pexels API Key</label><input type="password" id="pexelsKey" placeholder="Your Pexels API key"/></div>
     <div class="form-group"><label>Posts to generate</label><select id="postsPerWeek"><option value="3">3 posts</option><option value="4">4 posts</option><option value="5" selected>5 posts</option></select></div>
     <div class="modal-actions"><button class="btn-cancel" onclick="closeSettings()">Cancel</button><button class="btn-save" onclick="saveSettings()">Save</button></div>
   </div>
@@ -224,7 +248,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-let state={posts:[],selected:[],trends:[],selectedTrends:[],settings:{claudeKey:'',unsplashKey:'',postsPerWeek:5}};
+let state={posts:[],selected:[],trends:[],selectedTrends:[],settings:{claudeKey:'',unsplashKey:'',pexelsKey:'',postsPerWeek:5}};
 
 const VOICE=`You are writing social media posts for Michelle, owner of Olivia Blaire Travel — a luxury travel advisory in Central Wisconsin, affiliated with Virtuoso and Departure Lounge.
 
@@ -245,9 +269,9 @@ Total post length: under 150 words. No em dashes used excessively. No generic fi
 window.addEventListener('load',()=>{loadSettings();setWeekLabel();if(!state.settings.claudeKey)setTimeout(()=>openSettings(),600);});
 
 function setWeekLabel(){const n=new Date(),m=new Date(n);m.setDate(n.getDate()-n.getDay()+1);const s=new Date(m);s.setDate(m.getDate()+6);const f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});document.getElementById('weekLabel').textContent=`Week of ${f(m)} – ${f(s)}`;}
-function openSettings(){document.getElementById('claudeKey').value=state.settings.claudeKey;document.getElementById('unsplashKey').value=state.settings.unsplashKey;document.getElementById('postsPerWeek').value=state.settings.postsPerWeek;document.getElementById('settingsModal').classList.add('visible');}
+function openSettings(){document.getElementById('claudeKey').value=state.settings.claudeKey;document.getElementById('unsplashKey').value=state.settings.unsplashKey;document.getElementById('pexelsKey').value=state.settings.pexelsKey||'';document.getElementById('postsPerWeek').value=state.settings.postsPerWeek;document.getElementById('settingsModal').classList.add('visible');}
 function closeSettings(){document.getElementById('settingsModal').classList.remove('visible');}
-function saveSettings(){state.settings.claudeKey=document.getElementById('claudeKey').value.trim();state.settings.unsplashKey=document.getElementById('unsplashKey').value.trim();state.settings.postsPerWeek=parseInt(document.getElementById('postsPerWeek').value);localStorage.setItem('ob_settings',JSON.stringify(state.settings));closeSettings();showToast('Settings saved');}
+function saveSettings(){state.settings.claudeKey=document.getElementById('claudeKey').value.trim();state.settings.unsplashKey=document.getElementById('unsplashKey').value.trim();state.settings.pexelsKey=document.getElementById('pexelsKey').value.trim();state.settings.postsPerWeek=parseInt(document.getElementById('postsPerWeek').value);localStorage.setItem('ob_settings',JSON.stringify(state.settings));closeSettings();showToast('Settings saved');}
 function loadSettings(){const s=localStorage.getItem('ob_settings');if(s)state.settings={...state.settings,...JSON.parse(s)};}
 function switchTab(tab){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='posts')||(i===1&&tab==='schedule')));document.getElementById('postsTab').style.display=tab==='posts'?'block':'none';document.getElementById('scheduleTab').style.display=tab==='schedule'?'block':'none';if(tab==='schedule')renderSchedule();}
 
@@ -307,7 +331,35 @@ async function callClaude(prompt){
   const data=await res.json();return data.content[0].text;
 }
 
+let photoStyle='bright vibrant';
+function setPhotoStyle(style,btn){photoStyle=style;document.querySelectorAll('.photo-style-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function addCustomTheme(){
+  const input=document.getElementById('customThemeInput');
+  const val=input.value.trim();if(!val)return;
+  if(state.trends.includes(val)){showToast('Theme already in list');return;}
+  state.trends.push(val);
+  const idx=state.trends.length-1;
+  const pills=document.getElementById('trendPills');
+  const pill=document.createElement('span');
+  pill.className='trend-pill custom';
+  pill.setAttribute('data-idx',idx);
+  pill.textContent=val;
+  pill.onclick=()=>toggleTrend(idx);
+  pills.appendChild(pill);
+  input.value='';
+  showToast('Theme added');
+}
 async function fetchImages(query,count=3){
+  const styled=photoStyle?`${query} ${photoStyle}`:query;
+  const half=Math.ceil(count/2);
+  const [px,un]=await Promise.all([fetchPexels(styled,half),fetchUnsplash(styled,half)]);
+  return[...px,...un].slice(0,Math.max(count,px.length+un.length));
+}
+async function fetchPexels(query,count=2){
+  if(!state.settings.pexelsKey)return[];
+  try{const res=await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,{headers:{Authorization:state.settings.pexelsKey}});const data=await res.json();return(data.photos||[]).map(p=>({url:p.src.large,thumb:p.src.small,credit:p.photographer}));}catch{return[];}
+}
+async function fetchUnsplash(query,count=2){
   if(!state.settings.unsplashKey)return[];
   try{const res=await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,{headers:{Authorization:`Client-ID ${state.settings.unsplashKey}`}});const data=await res.json();return(data.results||[]).map(p=>({url:p.urls.regular,thumb:p.urls.thumb,credit:p.user.name}));}catch{return[];}
 }
@@ -462,7 +514,7 @@ function exportAll(){
   const sel=state.selected.map(id=>state.posts.find(p=>p.id===id)).filter(Boolean);
   if(!sel.length){showToast('No posts selected yet');return;}
   const days=['Tuesday','Wednesday','Thursday'];
-  const text=sel.map((p,i)=>{const img=getCurrentImg(p);const cap=getCaption(p);return`── ${days[i]} ─────────────────────\n${cap}\n\n${p.hashtags}${img&&img.credit!=='Your photo'?`\n\nPhoto: ${img.url}\nCredit: ${img.credit} on Unsplash`:''}`;}).join('\n\n');
+  const text=sel.map((p,i)=>{const img=getCurrentImg(p);const cap=getCaption(p);return`── ${days[i]} ─────────────────────\n${cap}\n\n${p.hashtags}`;}).join('\n\n');
   navigator.clipboard.writeText(text).then(()=>showToast(`${sel.length} posts copied — paste into Buffer`));
 }
 
