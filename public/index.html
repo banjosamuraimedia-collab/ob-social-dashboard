@@ -161,6 +161,32 @@
   .photo-style-btn.active{background:var(--gold);color:var(--blk);border-color:var(--gold);font-weight:500;}
   .toast{position:fixed;bottom:2rem;right:2rem;background:var(--dt);color:var(--ivory);font-size:0.8rem;padding:0.75rem 1.5rem;border-radius:30px;opacity:0;transform:translateY(8px);transition:all 0.25s;pointer-events:none;z-index:300;}
   .toast.show{opacity:1;transform:translateY(0);}
+
+  /* OLIVIA BLAIRE LIBRARY */
+  .img-library-btn{background:var(--gold);border:none;color:var(--blk);font-family:'Raleway',sans-serif;font-size:0.7rem;font-weight:500;padding:0.3rem 0.6rem;border-radius:3px;cursor:pointer;white-space:nowrap;}
+  .img-library-btn:hover{background:#b8962e;}
+  .lib-modal{width:820px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;}
+  .lib-toolbar{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+  .lib-toolbar select{flex:0 1 auto;width:auto;border:1px solid var(--bdr);background:var(--ivory);font-family:'Raleway',sans-serif;font-size:0.78rem;padding:0.4rem 0.6rem;border-radius:3px;color:var(--blk);outline:none;}
+  .lib-count{font-size:0.75rem;color:#999;align-self:center;margin-left:auto;}
+  .lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.75rem;overflow-y:auto;padding-right:0.25rem;}
+  .lib-card{border:1px solid var(--bdr);border-radius:4px;overflow:hidden;cursor:pointer;background:var(--wht);transition:box-shadow 0.2s;}
+  .lib-card:hover{box-shadow:0 2px 12px rgba(27,94,108,0.2);}
+  .lib-card.flagged{border-color:#b3261e;box-shadow:0 0 0 1px #b3261e;}
+  .lib-card img,.lib-card video{width:100%;height:120px;object-fit:cover;display:block;background:var(--surf);}
+  .lib-card-meta{padding:0.4rem 0.5rem 0.5rem;}
+  .lib-badge{display:inline-block;font-size:0.6rem;font-weight:600;letter-spacing:0.04em;color:white;padding:0.1rem 0.4rem;border-radius:3px;margin:0 0.2rem 0.2rem 0;}
+  .lib-badge.tier-hero{background:var(--gold);color:var(--blk);}
+  .lib-badge.tier-strong{background:var(--lt);}
+  .lib-badge.tier-other{background:#8a8a8a;}
+  .lib-badge.eng{background:var(--dt);}
+  .lib-badge.dest{background:#7A6C53;}
+  .lib-badge.privacy{background:#b3261e;}
+  .lib-card-caption{font-size:0.68rem;color:#666;line-height:1.35;margin-top:0.15rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .lib-empty{text-align:center;color:#999;font-size:0.85rem;padding:2.5rem 1rem;}
+  .lib-meta-strip{background:#FBF8F2;border-bottom:1px solid var(--bdr);padding:0.5rem 0.75rem;font-size:0.72rem;color:#555;line-height:1.5;}
+  .lib-meta-strip .lib-badge{font-size:0.62rem;}
+  .privacy-warning{background:#b3261e;color:white;font-size:0.72rem;font-weight:500;padding:0.5rem 0.75rem;letter-spacing:0.02em;}
   @media(max-width:768px){nav{padding:0 1rem;}.container{padding:1rem 1rem 3rem;}.hero-bar{flex-direction:column;align-items:flex-start;gap:1rem;}.posts-grid{grid-template-columns:1fr;}.week-schedule{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -245,10 +271,31 @@
     <div class="modal-actions"><button class="btn-cancel" onclick="closeSettings()">Cancel</button><button class="btn-save" onclick="saveSettings()">Save</button></div>
   </div>
 </div>
+<div class="modal-overlay" id="libraryModal">
+  <div class="modal lib-modal">
+    <h2>Olivia Blaire Library</h2>
+    <div class="lib-toolbar">
+      <select id="libDest" onchange="renderLibraryGrid()"><option value="">All destinations</option></select>
+      <select id="libSort" onchange="renderLibraryGrid()">
+        <option value="recent">Sort: Most recent</option>
+        <option value="brand">Sort: Hero score</option>
+        <option value="engagement">Sort: Engagement score</option>
+      </select>
+      <select id="libMedia" onchange="renderLibraryGrid()">
+        <option value="">Photos + videos</option>
+        <option value="photo">Photos only</option>
+        <option value="video">Videos only</option>
+      </select>
+      <span class="lib-count"><span id="libCount">0</span> shown</span>
+    </div>
+    <div class="lib-grid" id="libGrid"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeLibrary()">Close</button></div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
-let state={posts:[],selected:[],trends:[],selectedTrends:[],settings:{claudeKey:'',unsplashKey:'',pexelsKey:'',postsPerWeek:5}};
+let state={posts:[],selected:[],trends:[],selectedTrends:[],library:[],settings:{claudeKey:'',unsplashKey:'',pexelsKey:'',postsPerWeek:5}};
 
 const VOICE=`You are writing social media posts for Michelle, owner of Olivia Blaire Travel — a luxury travel advisory in Central Wisconsin, affiliated with Virtuoso and Departure Lounge.
 
@@ -266,7 +313,38 @@ Then on a new line: 4-5 relevant hashtags.
 
 Total post length: under 150 words. No em dashes used excessively. No generic filler phrases.`;
 
-window.addEventListener('load',()=>{loadSettings();setWeekLabel();if(!state.settings.claudeKey)setTimeout(()=>openSettings(),600);});
+window.addEventListener('load',()=>{loadSettings();setWeekLabel();loadLibrary();if(!state.settings.claudeKey)setTimeout(()=>openSettings(),600);});
+
+async function loadLibrary(){
+  try{
+    const res=await fetch('/library/manifest.json');
+    if(!res.ok)return;
+    const manifest=await res.json();
+    state.library=(manifest.items||[]).map(item=>({...item,thumb:item.url,credit:'Olivia Blaire Library',library:true}));
+    const dests=[...new Set(state.library.map(i=>i.destination).filter(Boolean))].sort();
+    document.getElementById('libDest').innerHTML='<option value="">All destinations</option>'+dests.map(d=>`<option value="${d}">${d}</option>`).join('');
+  }catch{/* no library deployed yet */}
+}
+
+// Auto-matching for generated posts: privacy-flagged items are never auto-selected (step through the picker to use them deliberately).
+function searchLibrary(query,count=2){
+  if(!state.library.length)return[];
+  const tokens=query.toLowerCase().split(/[^a-z0-9]+/).filter(t=>t.length>2);
+  if(!tokens.length)return[];
+  return state.library
+    .filter(item=>!item.privacy_flag&&item.media_type==='photo')
+    .map(item=>{
+      const hay=`${item.destination||''} ${item.alt_text||''} ${item.caption_angle||''} ${item.seo_filename||''}`.toLowerCase();
+      const destHay=(item.destination||'').toLowerCase();
+      let score=0;
+      tokens.forEach(t=>{if(destHay.includes(t))score+=3;else if(hay.includes(t))score+=1;});
+      return{item,score};
+    })
+    .filter(r=>r.score>=2)
+    .sort((a,b)=>b.score-a.score||(b.item.brand_score||0)-(a.item.brand_score||0))
+    .slice(0,count)
+    .map(r=>r.item);
+}
 
 function setWeekLabel(){const n=new Date(),m=new Date(n);m.setDate(n.getDate()-n.getDay()+1);const s=new Date(m);s.setDate(m.getDate()+6);const f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});document.getElementById('weekLabel').textContent=`Week of ${f(m)} – ${f(s)}`;}
 function openSettings(){document.getElementById('claudeKey').value=state.settings.claudeKey;document.getElementById('unsplashKey').value=state.settings.unsplashKey;document.getElementById('pexelsKey').value=state.settings.pexelsKey||'';document.getElementById('postsPerWeek').value=state.settings.postsPerWeek;document.getElementById('settingsModal').classList.add('visible');}
@@ -352,8 +430,9 @@ function addCustomTheme(){
 async function fetchImages(query,count=3){
   const styled=photoStyle?`${query} ${photoStyle}`:query;
   const half=Math.ceil(count/2);
+  const lib=searchLibrary(query,2);
   const [px,un]=await Promise.all([fetchPexels(styled,half),fetchUnsplash(styled,half)]);
-  return[...px,...un].slice(0,Math.max(count,px.length+un.length));
+  return[...lib,...px,...un].slice(0,Math.max(count,lib.length+px.length+un.length));
 }
 async function fetchPexels(query,count=2){
   if(!state.settings.pexelsKey)return[];
@@ -374,6 +453,54 @@ async function searchImages(postId){
   if(post&&images.length){post.images=images;post.selectedImage=0;post.uploadedImg=null;renderPosts();}
   else showToast('No images found — try different keywords');
   input.disabled=false;if(btn)btn.disabled=false;
+}
+
+let libraryTargetPost=null;
+function openLibrary(postId){
+  if(!state.library.length){showToast('Library is empty — run sync-library.js after approving photos');return;}
+  libraryTargetPost=postId;
+  renderLibraryGrid();
+  document.getElementById('libraryModal').classList.add('visible');
+}
+function closeLibrary(){document.getElementById('libraryModal').classList.remove('visible');libraryTargetPost=null;}
+function renderLibraryGrid(){
+  const dest=document.getElementById('libDest').value;
+  const sort=document.getElementById('libSort').value;
+  const media=document.getElementById('libMedia').value;
+  let items=state.library.filter(i=>(!dest||i.destination===dest)&&(!media||i.media_type===media));
+  items.sort((a,b)=>{
+    if(sort==='brand')return(b.brand_score||0)-(a.brand_score||0);
+    if(sort==='engagement')return(b.engagement_score||0)-(a.engagement_score||0);
+    return(b.date_taken||'').localeCompare(a.date_taken||'');
+  });
+  document.getElementById('libCount').textContent=items.length;
+  document.getElementById('libGrid').innerHTML=items.length?items.map(item=>{
+    const idx=state.library.indexOf(item);
+    const tierClass=item.tier==='Hero'?'tier-hero':item.tier==='Strong'?'tier-strong':'tier-other';
+    const mediaEl=item.media_type==='video'
+      ?`<video src="${item.url}" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>`
+      :`<img src="${item.url}" alt="${item.alt_text||''}" loading="lazy">`;
+    return`<div class="lib-card ${item.privacy_flag?'flagged':''}" onclick="pickLibraryImage(${idx})">
+      ${mediaEl}
+      <div class="lib-card-meta">
+        <span class="lib-badge ${tierClass}">${item.tier||'—'} · ${item.brand_score??'—'}</span>
+        <span class="lib-badge eng">Eng ${item.engagement_score??'—'}/5</span>
+        ${item.destination&&item.destination!=='Unspecified'?`<span class="lib-badge dest">${item.destination}</span>`:''}
+        ${item.privacy_flag?'<span class="lib-badge privacy">⚠ Consent</span>':''}
+        <div class="lib-card-caption">${item.caption_angle||item.alt_text||''}</div>
+      </div>
+    </div>`;
+  }).join(''):'<div class="lib-empty">No library items match these filters.</div>';
+}
+function pickLibraryImage(libIdx){
+  const item=state.library[libIdx];
+  const post=state.posts.find(p=>p.id===libraryTargetPost);
+  if(!item||!post){closeLibrary();return;}
+  post.images=[item,...post.images.filter(im=>!im.library||im.url!==item.url)];
+  post.selectedImage=0;post.uploadedImg=null;
+  closeLibrary();
+  renderPosts();
+  if(item.privacy_flag)showToast('⚠ This photo has an unresolved consent flag — review before posting');
 }
 
 function handleUpload(postId,file){
@@ -410,8 +537,21 @@ function renderCard(post){
   const img=getCurrentImg(post);
   const fmt=post.format||'square';
   const imgHtml=img
-    ?`<img class="ig-image" src="${img.url}" alt="${post.theme}">`
+    ?(img.library&&img.media_type==='video'
+      ?`<video class="ig-image" src="${img.url}" muted loop autoplay playsinline></video>`
+      :`<img class="ig-image" src="${img.url}" alt="${img.library&&img.alt_text?img.alt_text:post.theme}">`)
     :`<div class="ig-image-placeholder">No image loaded</div>`;
+  const tierClass=img&&img.library?(img.tier==='Hero'?'tier-hero':img.tier==='Strong'?'tier-strong':'tier-other'):'';
+  const libStrip=img&&img.library
+    ?`${img.privacy_flag?'<div class="privacy-warning">⚠ Identifiable person — consent unresolved. Review before posting.</div>':''}
+      <div class="lib-meta-strip">
+        <span class="lib-badge ${tierClass}">${img.tier||'—'} · ${img.brand_score??'—'}/25</span>
+        <span class="lib-badge eng">Engagement ${img.engagement_score??'—'}/5</span>
+        ${img.destination&&img.destination!=='Unspecified'?`<span class="lib-badge dest">${img.destination}</span>`:''}
+        <div><strong>Caption angle:</strong> ${img.caption_angle||'—'}</div>
+        <div><strong>Alt text:</strong> ${img.alt_text||'—'}</div>
+      </div>`
+    :'';
   const thumbs=post.images&&post.images.length>1&&!post.uploadedImg
     ?post.images.map((im,idx)=>`<img class="img-thumb ${idx===post.selectedImage?'active':''}" src="${im.thumb}" onclick="selectImg(${post.id},${idx})">`).join('')
     :'';
@@ -432,11 +572,13 @@ function renderCard(post){
           <button class="fmt-btn ${fmt==='portrait'?'active':''}" onclick="setFormat(${post.id},'portrait')">4:5</button>
         </div>
       </div>
+      ${libStrip}
       <div class="img-swap-bar">
         <div class="img-thumbs">${thumbs}</div>
         <div class="img-search-wrap">
           <input class="img-search-input" id="search-input-${post.id}" placeholder="Search new photo..." onkeydown="if(event.key==='Enter')searchImages(${post.id})">
           <button class="img-search-btn" id="search-btn-${post.id}" onclick="searchImages(${post.id})">Search</button>
+          <button class="img-library-btn" onclick="openLibrary(${post.id})">My Library</button>
           <button class="img-upload-btn" onclick="document.getElementById('upload-${post.id}').click()">Upload</button>
           <input class="img-file-input" id="upload-${post.id}" type="file" accept="image/*" onchange="handleUpload(${post.id},this.files[0])">
         </div>
@@ -507,7 +649,8 @@ function copyPost(id){
   const p=state.posts.find(p=>p.id===id);if(!p)return;
   const img=getCurrentImg(p);
   const cap=getCaption(p);
-  navigator.clipboard.writeText(`${cap}\n\n${p.hashtags}${img&&img.credit!=='Your photo'?`\n\nPhoto by ${img.credit} on Unsplash`:''}`).then(()=>showToast('Copied to clipboard'));
+  const needsCredit=img&&!img.library&&img.credit!=='Your photo';
+  navigator.clipboard.writeText(`${cap}\n\n${p.hashtags}${needsCredit?`\n\nPhoto by ${img.credit} on Unsplash`:''}`).then(()=>showToast(img&&img.library&&img.privacy_flag?'Copied — ⚠ photo has an unresolved consent flag':'Copied to clipboard'));
 }
 
 function exportAll(){
@@ -515,7 +658,8 @@ function exportAll(){
   if(!sel.length){showToast('No posts selected yet');return;}
   const days=['Tuesday','Wednesday','Thursday'];
   const text=sel.map((p,i)=>{const img=getCurrentImg(p);const cap=getCaption(p);return`── ${days[i]} ─────────────────────\n${cap}\n\n${p.hashtags}`;}).join('\n\n');
-  navigator.clipboard.writeText(text).then(()=>showToast(`${sel.length} posts copied — paste into Buffer`));
+  const flagged=sel.filter(p=>{const img=getCurrentImg(p);return img&&img.library&&img.privacy_flag;}).length;
+  navigator.clipboard.writeText(text).then(()=>showToast(flagged?`${sel.length} posts copied — ⚠ ${flagged} use privacy-flagged photos, check consent first`:`${sel.length} posts copied — paste into Buffer`));
 }
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
