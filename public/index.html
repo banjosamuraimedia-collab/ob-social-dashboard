@@ -295,7 +295,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-let state={posts:[],selected:[],trends:[],selectedTrends:[],library:[],settings:{claudeKey:'',unsplashKey:'',pexelsKey:'',postsPerWeek:5}};
+let state={posts:[],selected:[],trends:[],selectedTrends:[],library:[],serverKeys:{claude:false,pexels:false,unsplash:false},settings:{claudeKey:'',unsplashKey:'',pexelsKey:'',postsPerWeek:5}};
 
 const VOICE=`You are writing social media posts for Michelle, owner of Olivia Blaire Travel — a luxury travel advisory in Central Wisconsin, affiliated with Virtuoso and Departure Lounge.
 
@@ -313,7 +313,11 @@ Then on a new line: 4-5 relevant hashtags.
 
 Total post length: under 150 words. No em dashes used excessively. No generic filler phrases.`;
 
-window.addEventListener('load',()=>{loadSettings();setWeekLabel();loadLibrary();if(!state.settings.claudeKey)setTimeout(()=>openSettings(),600);});
+window.addEventListener('load',async()=>{
+  loadSettings();setWeekLabel();loadLibrary();
+  try{const res=await fetch('/api/config');if(res.ok)state.serverKeys=await res.json();}catch{/* older server without /api/config */}
+  if(!state.settings.claudeKey&&!state.serverKeys.claude)setTimeout(()=>openSettings(),600);
+});
 
 async function loadLibrary(){
   try{
@@ -347,14 +351,23 @@ function searchLibrary(query,count=2){
 }
 
 function setWeekLabel(){const n=new Date(),m=new Date(n);m.setDate(n.getDate()-n.getDay()+1);const s=new Date(m);s.setDate(m.getDate()+6);const f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});document.getElementById('weekLabel').textContent=`Week of ${f(m)} – ${f(s)}`;}
-function openSettings(){document.getElementById('claudeKey').value=state.settings.claudeKey;document.getElementById('unsplashKey').value=state.settings.unsplashKey;document.getElementById('pexelsKey').value=state.settings.pexelsKey||'';document.getElementById('postsPerWeek').value=state.settings.postsPerWeek;document.getElementById('settingsModal').classList.add('visible');}
+function openSettings(){
+  document.getElementById('claudeKey').value=state.settings.claudeKey;
+  document.getElementById('unsplashKey').value=state.settings.unsplashKey;
+  document.getElementById('pexelsKey').value=state.settings.pexelsKey||'';
+  document.getElementById('postsPerWeek').value=state.settings.postsPerWeek;
+  document.getElementById('claudeKey').placeholder=state.serverKeys.claude?'Configured on server — leave blank':'sk-ant-...';
+  document.getElementById('unsplashKey').placeholder=state.serverKeys.unsplash?'Configured on server — leave blank':'Your Unsplash access key';
+  document.getElementById('pexelsKey').placeholder=state.serverKeys.pexels?'Configured on server — leave blank':'Your Pexels API key';
+  document.getElementById('settingsModal').classList.add('visible');
+}
 function closeSettings(){document.getElementById('settingsModal').classList.remove('visible');}
 function saveSettings(){state.settings.claudeKey=document.getElementById('claudeKey').value.trim();state.settings.unsplashKey=document.getElementById('unsplashKey').value.trim();state.settings.pexelsKey=document.getElementById('pexelsKey').value.trim();state.settings.postsPerWeek=parseInt(document.getElementById('postsPerWeek').value);localStorage.setItem('ob_settings',JSON.stringify(state.settings));closeSettings();showToast('Settings saved');}
 function loadSettings(){const s=localStorage.getItem('ob_settings');if(s)state.settings={...state.settings,...JSON.parse(s)};}
 function switchTab(tab){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='posts')||(i===1&&tab==='schedule')));document.getElementById('postsTab').style.display=tab==='posts'?'block':'none';document.getElementById('scheduleTab').style.display=tab==='schedule'?'block':'none';if(tab==='schedule')renderSchedule();}
 
 async function researchTrends(){
-  if(!state.settings.claudeKey){openSettings();return;}
+  if(!state.settings.claudeKey&&!state.serverKeys.claude){openSettings();return;}
   const btn=document.getElementById('researchBtn');btn.disabled=true;
   document.getElementById('loadingState').classList.add('visible');
   document.getElementById('trendSection').classList.remove('visible');
@@ -404,7 +417,9 @@ async function generatePosts(){
 }
 
 async function callClaude(prompt){
-  const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':state.settings.claudeKey},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
+  const headers={'Content-Type':'application/json'};
+  if(state.settings.claudeKey)headers['x-api-key']=state.settings.claudeKey;
+  const res=await fetch('/api/claude',{method:'POST',headers,body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
   if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'API error');}
   const data=await res.json();return data.content[0].text;
 }
@@ -435,12 +450,20 @@ async function fetchImages(query,count=3){
   return[...lib,...px,...un].slice(0,Math.max(count,lib.length+px.length+un.length));
 }
 async function fetchPexels(query,count=2){
-  if(!state.settings.pexelsKey)return[];
-  try{const res=await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,{headers:{Authorization:state.settings.pexelsKey}});const data=await res.json();return(data.photos||[]).map(p=>({url:p.src.large,thumb:p.src.small,credit:p.photographer}));}catch{return[];}
+  if(!state.settings.pexelsKey&&!state.serverKeys.pexels)return[];
+  try{
+    const headers=state.settings.pexelsKey?{'x-pexels-key':state.settings.pexelsKey}:{};
+    const res=await fetch(`/api/pexels?query=${encodeURIComponent(query)}&per_page=${count}`,{headers});
+    const data=await res.json();return(data.photos||[]).map(p=>({url:p.src.large,thumb:p.src.small,credit:p.photographer}));
+  }catch{return[];}
 }
 async function fetchUnsplash(query,count=2){
-  if(!state.settings.unsplashKey)return[];
-  try{const res=await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,{headers:{Authorization:`Client-ID ${state.settings.unsplashKey}`}});const data=await res.json();return(data.results||[]).map(p=>({url:p.urls.regular,thumb:p.urls.thumb,credit:p.user.name}));}catch{return[];}
+  if(!state.settings.unsplashKey&&!state.serverKeys.unsplash)return[];
+  try{
+    const headers=state.settings.unsplashKey?{'x-unsplash-key':state.settings.unsplashKey}:{};
+    const res=await fetch(`/api/unsplash?query=${encodeURIComponent(query)}&per_page=${count}`,{headers});
+    const data=await res.json();return(data.results||[]).map(p=>({url:p.urls.regular,thumb:p.urls.thumb,credit:p.user.name}));
+  }catch{return[];}
 }
 
 async function searchImages(postId){
